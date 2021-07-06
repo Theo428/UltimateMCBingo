@@ -49,6 +49,22 @@ public abstract class AbstractTasks
     }
 
     public String getTaskTitle() {
+        taskTitle = "§l" + taskTitle;
+
+        switch (Status)
+        {
+            case NOT_STARTED:
+                taskTitle = "§8" + taskTitle;
+                break;
+
+            case IN_PROGRESS:
+                taskTitle = "§6" + taskTitle;
+                break;
+
+            case FINISHED:
+                taskTitle = "§a" + taskTitle;
+                break;
+        }
         return taskTitle;
     }
 

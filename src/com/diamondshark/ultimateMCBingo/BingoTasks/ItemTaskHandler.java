@@ -1,11 +1,6 @@
 package com.diamondshark.ultimateMCBingo.BingoTasks;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
-import org.bukkit.map.MapCanvas;
-import org.bukkit.map.MapCursor;
-import org.bukkit.map.MapCursorCollection;
-import org.bukkit.map.MinecraftFont;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,9 +75,9 @@ public class ItemTaskHandler extends AbstractTasks{
     };
 
     private static final String[] TASK_DESCRIPTION = {
-            "This Task requires that you have",
-            "the item(s) in your inventory",
-            "at the end of the game."};
+            "§7This Task requires that you have",
+            "§7the item(s) in your inventory",
+            "§7at the end of the game."};
 
     private int ItemIndex = 0;
     private int ItemQuantity = 5;
