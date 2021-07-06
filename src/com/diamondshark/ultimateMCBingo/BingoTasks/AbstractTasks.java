@@ -1,7 +1,9 @@
 package com.diamondshark.ultimateMCBingo.BingoTasks;
 
-import org.bukkit.map.MapCanvas;
-import org.bukkit.map.MapPalette;
+
+import org.bukkit.Material;
+
+import java.util.List;
 
 public abstract class AbstractTasks
 {
@@ -9,46 +11,73 @@ public abstract class AbstractTasks
     public static final int IN_PROGRESS = 1;
     public static final int FINISHED = 2;
 
-    protected static final int CHARS_PER_SQUARE = 9;
 
     private int Status = NOT_STARTED;
 
-    public AbstractTasks ()
-    {
+    private Material bingoSymbol;
+    private String taskTitle;
+    private List<String> taskDescription;
+    private int taskSymbolQuantity = 1;
 
+    public AbstractTasks (Material bingoSymbol)
+    {
+        this.bingoSymbol = bingoSymbol;
+    }
+
+    public AbstractTasks (Material bingoSymbol, String taskTitle)
+    {
+        this.bingoSymbol = bingoSymbol;
+        this.taskTitle = taskTitle;
+    }
+
+    public AbstractTasks (Material bingoSymbol, String taskTitle, List<String> taskDescription)
+    {
+        this.bingoSymbol = bingoSymbol;
+        this.taskTitle = taskTitle;
+        this.taskDescription = taskDescription;
     }
 
     public abstract int checkCompletion(boolean isGameFinished);                    //Returns completion level of task
 
-    public void drawBingoSquare(MapCanvas mapCanvas, int squareX, int squareY)      //draws 24x24 pixel square
-    {
-        for(int x = 0; x < 24; x++)
-        {
-            for(int y = 0; y < 24; y++)
-            {
-                switch (Status)
-                {
-                    case NOT_STARTED:
-                        mapCanvas.setPixel((x + squareX), (y + squareY), MapPalette.GRAY_1);
-                        break;
-
-                    case IN_PROGRESS:
-                        mapCanvas.setPixel((x + squareX), (y + squareY), MapPalette.PALE_BLUE);
-                        break;
-
-                    case FINISHED:
-                        mapCanvas.setPixel((x + squareX), (y + squareY), MapPalette.LIGHT_GREEN);
-                        break;
-                }
-            }
-        }
+    //getters
+    public Material getBingoSymbol() {
+        return bingoSymbol;
     }
 
     public int getStatus() {
         return Status;
     }
 
-    public void setStatus(int Status) {
-        Status = Status;
+    public String getTaskTitle() {
+        return taskTitle;
+    }
+
+    public List<String> getTaskDescription() {
+        return taskDescription;
+    }
+
+    public int getTaskSymbolQuantity() {
+        return taskSymbolQuantity;
+    }
+
+    //setters
+    protected void setBingoSymbol(Material bingoSymbol) {
+        this.bingoSymbol = bingoSymbol;
+    }
+
+    protected void setStatus(int Status) {
+        this.Status = Status;
+    }
+
+    protected void setTaskTitle(String taskTitle) {
+        this.taskTitle = taskTitle;
+    }
+
+    protected void setTaskDescription(List<String> taskDescription) {
+        this.taskDescription = taskDescription;
+    }
+
+    protected void setTaskSymbolQuantity(int taskSymbolQuantity) {
+        this.taskSymbolQuantity = taskSymbolQuantity;
     }
 }

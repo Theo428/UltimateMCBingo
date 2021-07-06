@@ -6,9 +6,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.map.MapView;
 
 import java.util.ArrayList;
 
@@ -35,10 +32,18 @@ public class CommandBingo implements CommandExecutor
 
                 case "leave":
                     return playerLeave(player);
+
+                case "Card":
+                    return playerViewCard(player);
+
+                default:
+                    commandSender.sendMessage("Invalid arguments");
+                    return true;
             }
         }
 
-        return false;
+        commandSender.sendMessage("Only players can use this command");
+        return true;
     }
 
     private boolean playerJoin(Player player)
@@ -54,18 +59,6 @@ public class CommandBingo implements CommandExecutor
         }
         bingoCards.add(new BingoCard(player.getUniqueId()));
         player.sendMessage("You have joined the bingo game.");
-
-        ItemStack i = new ItemStack(Material.FILLED_MAP, 1);
-        MapView view = Bukkit.createMap(player.getWorld());
-        view.getRenderers().clear();
-        view.addRenderer(bingoCards.get(bingoCards.size() - 1));
-
-        MapMeta mapMeta = (MapMeta) i.getItemMeta();
-        mapMeta.setMapView(view);
-        mapMeta.setDisplayName("Bingo Card");
-        i.setItemMeta(mapMeta);
-
-        player.getInventory().addItem(i);
         return true;
     }
 
@@ -76,10 +69,25 @@ public class CommandBingo implements CommandExecutor
             if(player.getUniqueId() == bingoCards.get(i).getPlayerUUID())
             {
                 bingoCards.remove(i);
+                player.sendMessage("You have left the bingo game");
                 return true;
             }
         }
-        player.sendMessage("You have left the bingo game");
+        player.sendMessage("You are not currently in a bingo game");
+        return true;
+    }
+
+    private boolean playerViewCard(Player player)
+    {
+        for(int i = 0; i < bingoCards.size(); i++)
+        {
+            if(player.getUniqueId() == bingoCards.get(i).getPlayerUUID())
+            {
+                player.openInventory(bingoCards.get(i).getInventory());
+                return true;
+            }
+        }
+        player.sendMessage("You must join a bingo game to view your bingo card.");
         return true;
     }
 

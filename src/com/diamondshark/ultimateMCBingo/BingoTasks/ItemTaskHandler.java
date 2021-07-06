@@ -1,10 +1,14 @@
 package com.diamondshark.ultimateMCBingo.BingoTasks;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapCursorCollection;
 import org.bukkit.map.MinecraftFont;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemTaskHandler extends AbstractTasks{
 
@@ -75,12 +79,31 @@ public class ItemTaskHandler extends AbstractTasks{
 
     };
 
+    private static final String[] TASK_DESCRIPTION = {
+            "This Task requires that you have",
+            "the item(s) in your inventory",
+            "at the end of the game."};
+
     private int ItemIndex = 0;
     private int ItemQuantity = 5;
 
-    public ItemTaskHandler ()
+    public ItemTaskHandler (int ItemIndex)
     {
-        super();
+        super(ITEM_TASK_LIST[ItemIndex].getItemType()[0]);
+
+        ItemQuantity = (int)(Math.random() * (ITEM_TASK_LIST[ItemIndex].getMaxQuantity() - ITEM_TASK_LIST[ItemIndex].getMinQuantity() + 1) + ITEM_TASK_LIST[ItemIndex].getMinQuantity());
+
+        List<String> taskDescriptionList = new ArrayList<String>();
+
+        taskDescriptionList.add(TASK_DESCRIPTION[0]);
+        taskDescriptionList.add(TASK_DESCRIPTION[1]);
+        taskDescriptionList.add(TASK_DESCRIPTION[2]);
+
+        super.setTaskTitle(generateTaskTitle());
+        super.setTaskDescription(taskDescriptionList);
+        super.setTaskSymbolQuantity(ItemQuantity);
+
+        this.ItemIndex = ItemIndex;
     }
 
     @Override
@@ -88,51 +111,20 @@ public class ItemTaskHandler extends AbstractTasks{
         return AbstractTasks.NOT_STARTED;
     }
 
-    @Override
-    public void drawBingoSquare(MapCanvas mapCanvas, int squareX, int squareY) {
-        super.drawBingoSquare(mapCanvas, squareX, squareY);
-
-        String bingoSquareText = "";
+    private String generateTaskTitle()
+    {
+        String taskTitle = "";
 
         if(ItemQuantity > 1)
         {
-            bingoSquareText = ItemQuantity + " " + ITEM_TASK_LIST[ItemIndex].getItemType()[0].name() + "s";
+            taskTitle = ItemQuantity + " " + ITEM_TASK_LIST[ItemIndex].getItemType()[0].name() + "s";
         }
         else
         {
-            bingoSquareText = ITEM_TASK_LIST[ItemIndex].getItemType()[0].name();
+            taskTitle = ITEM_TASK_LIST[ItemIndex].getItemType()[0].name();
         }
 
-        MapCursorCollection cursors = mapCanvas.getCursors();
-
-        int TextRow = 1;
-        int IndexDrawn = 0;
-
-        while(bingoSquareText.length() > IndexDrawn && TextRow < 6)
-        {
-            String drawString = "";
-            if((IndexDrawn + 9) < bingoSquareText.length())
-            {
-                drawString = bingoSquareText.substring(IndexDrawn, IndexDrawn + 9);
-                drawString = drawString.substring(0, drawString.lastIndexOf(' '));
-            }
-            else
-            {
-                drawString = bingoSquareText.substring(IndexDrawn);
-            }
-
-            IndexDrawn += drawString.length();
-
-
-            cursors.addCursor(new MapCursor((byte)((squareX + 12) - (int)(drawString.length()* 1.231)), (byte)(squareY + (TextRow * 3)), (byte) 8, MapCursor.Type.WHITE_POINTER, true, drawString));
-
-            //mapCanvas.drawText(((squareX + 12) - (int)(drawString.length()* 1.231)), (squareY + (TextRow * 7)), MinecraftFont.Font, drawString);
-
-            TextRow += 1;
-        }
-
-        mapCanvas.setCursors(cursors);
+        return taskTitle;
     }
-
 
 }
