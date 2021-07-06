@@ -3,7 +3,6 @@ package com.diamondshark.ultimateMCBingo;
 import com.diamondshark.ultimateMCBingo.BingoTasks.AbstractTasks;
 import com.diamondshark.ultimateMCBingo.BingoTasks.ItemTaskHandler;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;

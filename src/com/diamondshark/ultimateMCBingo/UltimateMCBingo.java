@@ -19,7 +19,9 @@ public class UltimateMCBingo extends JavaPlugin
     public void onEnable() {
         super.onEnable();
 
-        this.getCommand("bingo").setExecutor(new CommandBingo(bingoCards));
+        getCommand("bingo").setExecutor(new CommandBingo(bingoCards));
+
+        getServer().getPluginManager().registerEvents(new BingoCardListener(), this);
     }
 
 }
