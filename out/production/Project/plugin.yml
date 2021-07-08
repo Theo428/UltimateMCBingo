@@ -1,8 +1,0 @@
-name: Ultimate_MC-Bingo
-version: 1.0
-author: DiamondShark286
-main: com.diamondshark.ultimateMCBingo.UltimateMCBingo
-api-version: 1.17
-commands:
-  bingo:
-    description: Bingo Plugin main command
