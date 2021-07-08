@@ -38,7 +38,7 @@ public class CommandBingo implements CommandExecutor
                     return playerViewCard(player);
 
                 case "start":
-                    return bingoStart();
+                    return bingoStart(player);
 
                 default:
                     commandSender.sendMessage("§cInvalid arguments");
@@ -103,8 +103,9 @@ public class CommandBingo implements CommandExecutor
 
     }
 
-    private boolean bingoStart()
+    private boolean bingoStart(Player player)
     {
+        plugin.broadcastMessage(player.getWorld(), "§l§aThe game has Started!");
         plugin.gameStart();
         return true;
     }
