@@ -3,33 +3,57 @@ package com.diamondshark.ultimateMCBingo;
 import com.diamondshark.ultimateMCBingo.BingoTasks.AbstractTask;
 import com.diamondshark.ultimateMCBingo.BingoTasks.ItemTasks.ItemTaskHandler;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Collections;
+
 
 public class BingoCard implements InventoryHolder
 {
     private static final String INVENTORY_NAME = "Bingo Card";
 
+    public static final int DEFAULT_CARD_VIEW = 0;
+    public static final int PROGRESS_CARD_VIEW = 1;
+
     private AbstractTask[][] BingoCard = new AbstractTask[5][5];
 
-    private UUID playerUUID;
+    private Player player;
+    private UltimateMCBingo plugin;
 
     private Inventory bingoCardGUI;
 
-    public BingoCard(UUID playerUUID)
+    private boolean hasWon = false;
+    private int bingoCardView = DEFAULT_CARD_VIEW;
+
+    public BingoCard(UltimateMCBingo plugin, Player player)
     {
-        this.playerUUID = playerUUID;
+        this.player = player;
+        this.plugin = plugin;
 
         bingoCardGUI = Bukkit.createInventory(this, 54, INVENTORY_NAME);
 
-        GenerateBingoCard();
+
+        ItemStack DefaultViewItem =  new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
+        ItemMeta meta = DefaultViewItem.getItemMeta();
+        meta.setDisplayName("§l§9Default View");
+        DefaultViewItem.setItemMeta(meta);
+        bingoCardGUI.setItem(0, DefaultViewItem);
+
+        ItemStack progressViewItem =  new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
+        meta = progressViewItem.getItemMeta();
+        meta.setDisplayName("§l§9Progress View");
+        progressViewItem.setItemMeta(meta);
+        bingoCardGUI.setItem(9, progressViewItem);
     }
+
+    private BukkitRunnable periodicWinChecker;
 
     @Override
     public Inventory getInventory()
@@ -38,29 +62,68 @@ public class BingoCard implements InventoryHolder
         return bingoCardGUI;
     }
 
-    public UUID getPlayerUUID()
+    public Player getPlayer()
     {
-        return playerUUID;
+        return player;
     }
 
-    public void GenerateBingoCard()
+    public boolean HasWon() {
+        return hasWon;
+    }
+
+    public void setBingoCardView(int bingoCardView) {
+        this.bingoCardView = bingoCardView;
+    }
+
+    public void gameOver()
     {
+        periodicWinChecker.cancel();
+
         for(int x = 0; x < BingoCard.length; x++)
         {
             for(int y = 0; y < BingoCard[x].length; y++)
             {
-                BingoCard[x][y] = generateRandomTask();
-
-
-                ItemStack taskSymbol =  new ItemStack(BingoCard[x][y].getBingoSymbol(), BingoCard[x][y].getTaskSymbolQuantity());
-                ItemMeta meta = taskSymbol.getItemMeta();
-                meta.setDisplayName(BingoCard[x][y].getTaskTitle());
-                meta.setLore(BingoCard[x][y].getTaskDescription());
-                taskSymbol.setItemMeta(meta);
-
-                bingoCardGUI.setItem(((x+2) + (y*9)), taskSymbol);
+                BingoCard[x][y].gameOver();
             }
         }
+    }
+
+    public void gameStart()
+    {
+        GenerateBingoCard();
+        hasWon = false;
+
+        periodicWinChecker = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if(periodicWinCheck())
+                {
+                    gameWon();
+                }
+            }
+        };
+
+        periodicWinChecker.runTaskTimer(plugin, 0L, 10);
+    }
+
+    public void GenerateBingoCard()
+    {
+        ArrayList<AbstractTask>  TaskList = new ArrayList<AbstractTask>();
+        TaskList = ItemTaskHandler.addAllTasksToList(TaskList);
+
+        for(int x = 0; x < BingoCard.length; x++)
+        {
+            for(int y = 0; y < BingoCard[x].length; y++)
+            {
+                int randomIndex = (int)(Math.random() * TaskList.size());
+
+                BingoCard[x][y] = TaskList.get(randomIndex);
+
+                TaskList.remove(randomIndex);
+            }
+        }
+
+        updateInventoryGUI();
     }
 
     public void updateInventoryGUI()
@@ -69,7 +132,7 @@ public class BingoCard implements InventoryHolder
         {
             for(int y = 0; y < BingoCard[x].length; y++)
             {
-                ItemStack taskSymbol =  new ItemStack(BingoCard[x][y].getBingoSymbol(), BingoCard[x][y].getTaskSymbolQuantity());
+                ItemStack taskSymbol =  new ItemStack(BingoCard[x][y].getBingoSymbol(bingoCardView), BingoCard[x][y].getTaskSymbolQuantity());
                 ItemMeta meta = taskSymbol.getItemMeta();
                 meta.setDisplayName(BingoCard[x][y].getTaskTitle());
                 meta.setLore(BingoCard[x][y].getTaskDescription());
@@ -80,18 +143,8 @@ public class BingoCard implements InventoryHolder
         }
     }
 
-    public boolean periodicWinCheck(World world)
+    public boolean periodicWinCheck()
     {
-        Player player = null;
-
-        for(int i = 0; i < world.getPlayers().size(); i++)
-        {
-            if(world.getPlayers().get(i).getUniqueId() == playerUUID)
-            {
-                player = world.getPlayers().get(i);
-            }
-        }
-
         if(player == null)
         {
             return false;
@@ -105,17 +158,14 @@ public class BingoCard implements InventoryHolder
 
                 if(hasStatusChanged)
                 {
-                    player.sendMessage("Task:" + BingoCard[x][y].getTaskTitle() + " has updated its status");
                     if(checkWin())
                     {
-                        player.sendMessage("You won!");
                         return true;
                     }
                 }
             }
         }
 
-        //player.sendMessage(BingoCard[0][0].getPlayerItemQuantity() + " out of " + BingoCard[0][0].getTaskTitle());
         return false;
     }
 
@@ -189,25 +239,9 @@ public class BingoCard implements InventoryHolder
         return false;
     }
 
-    private AbstractTask generateRandomTask()
+    private void gameWon()
     {
-        int totalTaskPool = 0;
-
-        //total number of tasks
-        totalTaskPool += ItemTaskHandler.getNumberOfTasks();
-
-        int randomTask = (int)(Math.random() * (totalTaskPool+1));
-
-        //check if task is an ItemTask
-        if(randomTask < ItemTaskHandler.getNumberOfTasks())
-        {
-            return new ItemTaskHandler(randomTask);
-        }
-        else
-        {
-            randomTask -= ItemTaskHandler.getNumberOfTasks();
-        }
-
-        return null;
+        hasWon = true;
+        plugin.gameOver();
     }
 }

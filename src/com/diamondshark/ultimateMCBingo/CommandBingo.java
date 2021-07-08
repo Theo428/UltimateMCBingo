@@ -1,7 +1,5 @@
 package com.diamondshark.ultimateMCBingo;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,13 +12,10 @@ import java.util.ArrayList;
 
 public class CommandBingo implements CommandExecutor
 {
-    private ArrayList<BingoCard> bingoCards;
+    private UltimateMCBingo plugin;
 
-    private Plugin plugin;
-
-    public CommandBingo(ArrayList<BingoCard> bingoCards, Plugin plugin)
+    public CommandBingo(UltimateMCBingo plugin)
     {
-        this.bingoCards = bingoCards;
         this.plugin = plugin;
     }
 
@@ -43,75 +38,74 @@ public class CommandBingo implements CommandExecutor
                     return playerViewCard(player);
 
                 case "start":
-                    return bingoStart(player.getWorld());
+                    return bingoStart();
 
                 default:
-                    commandSender.sendMessage("Invalid arguments");
+                    commandSender.sendMessage("§cInvalid arguments");
                     return true;
             }
         }
 
-        commandSender.sendMessage("Only players can use this command");
+        commandSender.sendMessage("§cOnly players can use this command");
         return true;
     }
 
     private boolean playerJoin(Player player)
     {
 
-        for(int i = 0; i < bingoCards.size(); i++)
+        for(int i = 0; i < plugin.getBingoCards().size(); i++)
         {
-            if(player.getUniqueId() == bingoCards.get(i).getPlayerUUID())
+            if(player.getUniqueId() == plugin.getBingoCards().get(i).getPlayer().getUniqueId())
             {
-                player.sendMessage("You have already joined the current bingo game.");
+                player.sendMessage("§cYou have already joined the current bingo game.");
                 return true;
             }
         }
-        bingoCards.add(new BingoCard(player.getUniqueId()));
-        player.sendMessage("You have joined the bingo game.");
+        plugin.getBingoCards().add(new BingoCard(plugin, player));
+        player.sendMessage("§aYou have joined the bingo game.");
         return true;
     }
 
     private boolean playerLeave(Player player)
     {
-        for(int i = 0; i < bingoCards.size(); i++)
+        for(int i = 0; i < plugin.getBingoCards().size(); i++)
         {
-            if(player.getUniqueId() == bingoCards.get(i).getPlayerUUID())
+            if(player.getUniqueId() == plugin.getBingoCards().get(i).getPlayer().getUniqueId())
             {
-                bingoCards.remove(i);
-                player.sendMessage("You have left the bingo game");
+                plugin.getBingoCards().remove(i);
+                player.sendMessage("§aYou have left the bingo game");
                 return true;
             }
         }
-        player.sendMessage("You are not currently in a bingo game");
+        player.sendMessage("§cYou are not currently in a bingo game");
         return true;
     }
 
     private boolean playerViewCard(Player player)
     {
-        for(int i = 0; i < bingoCards.size(); i++)
+        if(plugin.isGameStarted() || plugin.isGameOver())
         {
-            if(player.getUniqueId() == bingoCards.get(i).getPlayerUUID())
-            {
-                player.openInventory(bingoCards.get(i).getInventory());
-                return true;
-            }
-        }
-        player.sendMessage("You must join a bingo game to view your bingo card.");
-        return true;
-    }
-
-    private boolean bingoStart(World world)
-    {
-        new BukkitRunnable() {
-            @Override
-            public void run()
-            {
-                for(int i = 0; i < bingoCards.size(); i++)
-                {
-                    bingoCards.get(i).periodicWinCheck(world);
+            for (int i = 0; i < plugin.getBingoCards().size(); i++) {
+                if (player.getUniqueId() == plugin.getBingoCards().get(i).getPlayer().getUniqueId()) {
+                    player.openInventory(plugin.getBingoCards().get(i).getInventory());
+                    return true;
                 }
             }
-        }.runTaskTimer(plugin, 0L, 10);
+        }
+        else
+        {
+            player.sendMessage("§cGame has not started yet");
+            return true;
+        }
+
+        player.sendMessage("§cYou must join a bingo game to view your bingo card.");
+        return true;
+
+    }
+
+    private boolean bingoStart()
+    {
+        plugin.gameStart();
         return true;
     }
 

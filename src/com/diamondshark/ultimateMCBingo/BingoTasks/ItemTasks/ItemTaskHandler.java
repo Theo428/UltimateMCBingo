@@ -2,6 +2,7 @@ package com.diamondshark.ultimateMCBingo.BingoTasks.ItemTasks;
 
 import com.diamondshark.ultimateMCBingo.BingoTasks.AbstractTask;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -83,8 +84,14 @@ public class ItemTaskHandler extends AbstractTask {
             "§7the item(s) in your inventory",
             "§7at the end of the game."};
 
-    public static int getNumberOfTasks() {
-        return ITEM_TASK_LIST.length;
+    public static ArrayList<AbstractTask> addAllTasksToList(ArrayList<AbstractTask> Tasks)
+    {
+        for(int i = 0; i < ITEM_TASK_LIST.length; i++)
+        {
+            Tasks.add(new ItemTaskHandler(i));
+        }
+
+        return Tasks;
     }
 
     private int ItemIndex = 0;
@@ -142,6 +149,13 @@ public class ItemTaskHandler extends AbstractTask {
         return hasChanged;
     }
 
+    @Override
+    public int getPlayerItemQuantity()
+    {
+        return playerItemQuantity[0];
+    }
+
+
     public void checkInventory(Player player)
     {
         for(int i = 0; i < ITEM_TASK_LIST[ItemIndex].getItemType().length; i++)
@@ -155,11 +169,7 @@ public class ItemTaskHandler extends AbstractTask {
         }
     }
 
-    @Override
-    public int getPlayerItemQuantity()
-    {
-        return playerItemQuantity[0];
-    }
+
 
     private String generateTaskTitle()
     {

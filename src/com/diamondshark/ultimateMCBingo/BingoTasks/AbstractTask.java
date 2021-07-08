@@ -1,6 +1,7 @@
 package com.diamondshark.ultimateMCBingo.BingoTasks;
 
 
+import com.diamondshark.ultimateMCBingo.BingoCard;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -21,7 +22,6 @@ public abstract class AbstractTask
     private String taskTitle;
     private List<String> taskDescription;
     private int taskSymbolQuantity = 1;
-    private int numberOfTasks;
 
     public AbstractTask(Material bingoSymbol)
     {
@@ -41,11 +41,42 @@ public abstract class AbstractTask
         this.taskDescription = taskDescription;
     }
 
-    public abstract boolean checkCompletion(Player player);                    //Returns completion level of task
+    public abstract boolean checkCompletion(Player player);
     public abstract int getPlayerItemQuantity();
 
+
+    public void gameOver()
+    {
+        if(Status == PENDING)
+        {
+            setStatus(FINISHED);
+        }
+
+    }
+
     //getters
-    public Material getBingoSymbol() {
+    public Material getBingoSymbol(int viewType) {
+        switch (viewType)
+        {
+            case BingoCard.DEFAULT_CARD_VIEW:
+                return bingoSymbol;
+
+            case BingoCard.PROGRESS_CARD_VIEW:
+                switch (Status)
+                {
+                    case NOT_STARTED:
+                        return Material.GRAY_STAINED_GLASS_PANE;
+
+                    case IN_PROGRESS:
+                        return Material.ORANGE_STAINED_GLASS_PANE;
+
+                    case PENDING:
+                        return Material.BLUE_STAINED_GLASS_PANE;
+
+                    case FINISHED:
+                        return Material.LIME_STAINED_GLASS_PANE;
+                }
+        }
         return bingoSymbol;
     }
 
@@ -54,27 +85,27 @@ public abstract class AbstractTask
     }
 
     public String getTaskTitle() {
-        taskTitle = "§l" + taskTitle;
+        String taskTitleOutput = "§l" + taskTitle;
 
         switch (Status)
         {
             case NOT_STARTED:
-                taskTitle = "§8" + taskTitle;
+                taskTitleOutput = "§8" + taskTitleOutput;
                 break;
 
             case IN_PROGRESS:
-                taskTitle = "§6" + taskTitle;
+                taskTitleOutput = "§6" + taskTitleOutput;
                 break;
 
             case PENDING:
-                taskTitle = "§9" + taskTitle;
+                taskTitleOutput = "§9" + taskTitleOutput;
                 break;
 
             case FINISHED:
-                taskTitle = "§a" + taskTitle;
+                taskTitleOutput = "§a" + taskTitleOutput;
                 break;
         }
-        return taskTitle;
+        return taskTitleOutput;
     }
 
     public List<String> getTaskDescription() {
