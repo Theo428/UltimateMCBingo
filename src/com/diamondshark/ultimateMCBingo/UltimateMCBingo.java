@@ -16,6 +16,8 @@ public class UltimateMCBingo extends JavaPlugin
     private boolean gameStarted = false;
     private boolean gameOver = false;
 
+    private long startTime = 0;
+
     @Override
     public void onDisable() {
         super.onDisable();
@@ -25,15 +27,19 @@ public class UltimateMCBingo extends JavaPlugin
     public void onEnable() {
         super.onEnable();
 
+        this.saveDefaultConfig();
+
         getCommand("bingo").setExecutor(new CommandBingo(this));
 
-        getServer().getPluginManager().registerEvents(new BingoCardListener(), this);
+        getServer().getPluginManager().registerEvents(new BingoCardListener(this), this);
     }
 
     public void gameOver()
     {
         gameStarted = false;
         gameOver = true;
+
+        long gameLength = System.currentTimeMillis() - startTime;
 
         for(int i = 0; i < bingoCards.size(); i++)
         {
@@ -48,13 +54,49 @@ public class UltimateMCBingo extends JavaPlugin
 
     public void gameStart()
     {
+        startTime = System.currentTimeMillis();
         gameStarted = true;
         gameOver = false;
 
         for(int i = 0; i < bingoCards.size(); i++)
         {
-            bingoCards.get(i).gameStart();
+            if(getConfig().getBoolean(ConfigKeyReference.IDENTICAL_CARDS_KEY))
+            {
+                long seed = (long)(Math.random() * 1000000000);
+                bingoCards.get(i).gameStart(seed);
+            }
+            else
+            {
+                bingoCards.get(i).gameStart();
+            }
         }
+    }
+
+    public void playerJoin(Player player)
+    {
+
+        for(int i = 0; i < bingoCards.size(); i++)
+        {
+            if(player.getUniqueId() == bingoCards.get(i).getPlayer().getUniqueId())
+            {
+                player.sendMessage("§cYou have already joined the current bingo game.");
+            }
+        }
+        bingoCards.add(new BingoCard(this, player));
+        player.sendMessage("§aYou have joined the bingo game.");
+    }
+
+    public void playerLeave(Player player)
+    {
+        for(int i = 0; i < bingoCards.size(); i++)
+        {
+            if(player.getUniqueId() == bingoCards.get(i).getPlayer().getUniqueId())
+            {
+                bingoCards.remove(i);
+                player.sendMessage("§aYou have left the bingo game");
+            }
+        }
+        player.sendMessage("§cYou are not currently in a bingo game");
     }
 
     public boolean isGameStarted() {

@@ -1,7 +1,7 @@
 package com.diamondshark.ultimateMCBingo;
 
 import com.diamondshark.ultimateMCBingo.BingoTasks.AbstractTask;
-import com.diamondshark.ultimateMCBingo.BingoTasks.ItemTasks.ItemTaskHandler;
+import com.diamondshark.ultimateMCBingo.BingoTasks.ItemTasks.SimpleItemTasks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Random;
 
 
 public class BingoCard implements InventoryHolder
@@ -31,6 +31,14 @@ public class BingoCard implements InventoryHolder
 
     private boolean hasWon = false;
     private int bingoCardView = DEFAULT_CARD_VIEW;
+
+    private BukkitRunnable periodicWinChecker;
+
+    public static int generateCardSeed()
+    {
+
+        return 0;
+    }
 
     public BingoCard(UltimateMCBingo plugin, Player player)
     {
@@ -53,7 +61,6 @@ public class BingoCard implements InventoryHolder
         bingoCardGUI.setItem(9, progressViewItem);
     }
 
-    private BukkitRunnable periodicWinChecker;
 
     @Override
     public Inventory getInventory()
@@ -90,7 +97,12 @@ public class BingoCard implements InventoryHolder
 
     public void gameStart()
     {
-        GenerateBingoCard();
+        gameStart((long)(Math.random() * 1000000000));
+    }
+
+    public void gameStart(long seed)
+    {
+        GenerateBingoCard(seed);
         hasWon = false;
 
         periodicWinChecker = new BukkitRunnable() {
@@ -106,16 +118,18 @@ public class BingoCard implements InventoryHolder
         periodicWinChecker.runTaskTimer(plugin, 0L, 10);
     }
 
-    public void GenerateBingoCard()
+    public void GenerateBingoCard(long seed)
     {
+        Random generator = new Random(seed);
+
         ArrayList<AbstractTask>  TaskList = new ArrayList<AbstractTask>();
-        TaskList = ItemTaskHandler.addAllTasksToList(TaskList);
+        TaskList = SimpleItemTasks.addAllTasksToList(TaskList);
 
         for(int x = 0; x < BingoCard.length; x++)
         {
             for(int y = 0; y < BingoCard[x].length; y++)
             {
-                int randomIndex = (int)(Math.random() * TaskList.size());
+                int randomIndex = (int)(generator.nextDouble() * TaskList.size());
 
                 BingoCard[x][y] = TaskList.get(randomIndex);
 

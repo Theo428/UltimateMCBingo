@@ -1,14 +1,10 @@
 package com.diamondshark.ultimateMCBingo;
 
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
 
 public class CommandBingo implements CommandExecutor
 {
@@ -29,16 +25,21 @@ public class CommandBingo implements CommandExecutor
             switch (args[0])
             {
                 case "join":
-                    return playerJoin(player);
+                    plugin.playerJoin(player);
+                    return true;
 
                 case "leave":
-                    return playerLeave(player);
+                    plugin.playerLeave(player);
+                    return true;
 
                 case "card":
                     return playerViewCard(player);
 
                 case "start":
                     return bingoStart(player);
+
+                case "config":
+                    return bingoConfig(player, plugin);
 
                 default:
                     commandSender.sendMessage("§cInvalid arguments");
@@ -47,37 +48,6 @@ public class CommandBingo implements CommandExecutor
         }
 
         commandSender.sendMessage("§cOnly players can use this command");
-        return true;
-    }
-
-    private boolean playerJoin(Player player)
-    {
-
-        for(int i = 0; i < plugin.getBingoCards().size(); i++)
-        {
-            if(player.getUniqueId() == plugin.getBingoCards().get(i).getPlayer().getUniqueId())
-            {
-                player.sendMessage("§cYou have already joined the current bingo game.");
-                return true;
-            }
-        }
-        plugin.getBingoCards().add(new BingoCard(plugin, player));
-        player.sendMessage("§aYou have joined the bingo game.");
-        return true;
-    }
-
-    private boolean playerLeave(Player player)
-    {
-        for(int i = 0; i < plugin.getBingoCards().size(); i++)
-        {
-            if(player.getUniqueId() == plugin.getBingoCards().get(i).getPlayer().getUniqueId())
-            {
-                plugin.getBingoCards().remove(i);
-                player.sendMessage("§aYou have left the bingo game");
-                return true;
-            }
-        }
-        player.sendMessage("§cYou are not currently in a bingo game");
         return true;
     }
 
@@ -107,6 +77,12 @@ public class CommandBingo implements CommandExecutor
     {
         plugin.broadcastMessage(player.getWorld(), "§l§aThe game has Started!");
         plugin.gameStart();
+        return true;
+    }
+
+    private boolean bingoConfig(Player player, Plugin plugin)
+    {
+        player.openInventory(new BingoConfigInventory(plugin).getInventory());
         return true;
     }
 

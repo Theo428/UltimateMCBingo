@@ -2,15 +2,13 @@ package com.diamondshark.ultimateMCBingo.BingoTasks.ItemTasks;
 
 import com.diamondshark.ultimateMCBingo.BingoTasks.AbstractTask;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-public class ItemTaskHandler extends AbstractTask {
+public class SimpleItemTasks extends AbstractTask {
 
     public static final ItemTaskContainer[] ITEM_TASK_LIST = {
             new ItemTaskContainer(new Material[]{Material.OBSIDIAN}, 3, 10),
@@ -88,7 +86,7 @@ public class ItemTaskHandler extends AbstractTask {
     {
         for(int i = 0; i < ITEM_TASK_LIST.length; i++)
         {
-            Tasks.add(new ItemTaskHandler(i));
+            Tasks.add(new SimpleItemTasks(i));
         }
 
         return Tasks;
@@ -98,7 +96,7 @@ public class ItemTaskHandler extends AbstractTask {
     private int ItemQuantity = 5;
     private int playerItemQuantity[];
 
-    public ItemTaskHandler (int ItemIndex)
+    public SimpleItemTasks(int ItemIndex)
     {
         super(ITEM_TASK_LIST[ItemIndex].getItemType()[0]);
 
@@ -147,12 +145,6 @@ public class ItemTaskHandler extends AbstractTask {
         super.setStatus(newStatus);
 
         return hasChanged;
-    }
-
-    @Override
-    public int getPlayerItemQuantity()
-    {
-        return playerItemQuantity[0];
     }
 
 

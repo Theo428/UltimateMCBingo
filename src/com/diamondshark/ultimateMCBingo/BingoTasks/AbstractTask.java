@@ -42,7 +42,6 @@ public abstract class AbstractTask
     }
 
     public abstract boolean checkCompletion(Player player);
-    public abstract int getPlayerItemQuantity();
 
 
     public void gameOver()
