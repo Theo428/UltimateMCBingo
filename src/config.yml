@@ -1,5 +1,6 @@
-#add player to game on joining the server
+#auto-join:         add player to game on joining the server
+#identicalCards:    give every player the same bingo card
+
 auto-join: false
 
-#give every player the same bingo card
 identicalCards: false

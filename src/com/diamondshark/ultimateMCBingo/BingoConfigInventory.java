@@ -62,6 +62,7 @@ public class BingoConfigInventory implements InventoryHolder
     public void toggleIdenticalCards()
     {
         plugin.getConfig().set(ConfigKeyReference.IDENTICAL_CARDS_KEY, !plugin.getConfig().getBoolean(ConfigKeyReference.IDENTICAL_CARDS_KEY));
+        plugin.saveConfig();
     }
 
     private void addItem(Material material, String itemName, String[] lore, int x, int y, int NBTTag)
